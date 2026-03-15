@@ -291,38 +291,69 @@ const ll inf=1e18;
 // 2) Proofs are simple.
 
 // 3) Implementations are simple.
-// on the number line , c must be close to b on either side 
-// given the sorted line segment 
-// at the ith step 
-// suppose wlog , we have a < b 
-// then c must be close to b
-// for any 'a' choosen by alice 
-// bob can choose a 'b' 
-// the random 'c' 
-// at the ith process 
-// total processes : i * (i-1) * (i-2) 
-// let us fix a
-// then fix b 
-// wlog a < b 
-// ...a...b.... (k elements more than b)
-// only c which are c > b (works) 
-// probability = (1/k )
-// expected score += (1/k)*(c-b) 
-// (1/k) * [(c1-b)+(c2-b)+..+(ck-b)]
-// (1/k) * [sigma(ci)[k element] - k*b] 
-// for the previous step 
-// [a1 ... ai-1] 
-// dp[i-1] = (1/k1) [sigma(ci) - k1*b]
-// if a and b were swapped 
-// dp[i-1] = 1/k1' [k1'*b - sigma(ci)] {ci less than b}
-// if after insertion of the new element , it lies between a and b 
-// then dp[i] = dp[i-1] // everything remains in place 
-// provided a and b are also fixed 
 // 
 void solve()
 {
     //your code
+    ll n,k,p,m;
+    cin>>n>>k>>p>>m;
+    k--;
+    p--;
+    vll a(n);
+    cin>>a;
+    vc<pll>b;
+    REP1(i,n){
+        b.pb({a[i],i});
+    }
+    sort(all(b)) ;
+    ll cost = 0 ;
+    ll cnt = n-1 - k ;
+    REP1(i,n){
+        if(b[i].se == p) continue;
+        if(cnt>0){
+            cost += b[i].fi;
+            cnt-- ;
+        }
+        
+        if(!cnt) break;
+    }
+    // cost + a[p] for 1 cycle 
+    // initial cost 
+    ll init = 0 ;
+    if(p<=k){
+        init = a[p] ;
+    }
+    else{
+        vc<pll>c;
+        REP1(i,p){
+            c.pb({a[i],i});
+        }
+        sort(all(c)) ;
+        ll cnt_ = p - k ;
+        ll cur_ = 0 ;
+        REP1(i,c.size()){
+            if(cnt_>0){
+                cur_ += c[i].fi;
+                cnt_--;
+            }
+            
+            if(!cnt_) break;
+        }
+        init = cur_ + a[p] ;
+    }
+    ll ans = (m >= init) ? 1 : 0 ;
+    if(!ans){
+        cout<<0<<endl;
+        return;
+    }
+    m -= init ;
+    ll cycles = m/(cost + a[p]) ;
+    ans += cycles ;
+    cout<<ans<<endl;
+
+
     
+
     
 
 }

@@ -291,37 +291,249 @@ const ll inf=1e18;
 // 2) Proofs are simple.
 
 // 3) Implementations are simple.
-// on the number line , c must be close to b on either side 
-// given the sorted line segment 
-// at the ith step 
-// suppose wlog , we have a < b 
-// then c must be close to b
-// for any 'a' choosen by alice 
-// bob can choose a 'b' 
-// the random 'c' 
-// at the ith process 
-// total processes : i * (i-1) * (i-2) 
-// let us fix a
-// then fix b 
-// wlog a < b 
-// ...a...b.... (k elements more than b)
-// only c which are c > b (works) 
-// probability = (1/k )
-// expected score += (1/k)*(c-b) 
-// (1/k) * [(c1-b)+(c2-b)+..+(ck-b)]
-// (1/k) * [sigma(ci)[k element] - k*b] 
-// for the previous step 
-// [a1 ... ai-1] 
-// dp[i-1] = (1/k1) [sigma(ci) - k1*b]
-// if a and b were swapped 
-// dp[i-1] = 1/k1' [k1'*b - sigma(ci)] {ci less than b}
-// if after insertion of the new element , it lies between a and b 
-// then dp[i] = dp[i-1] // everything remains in place 
-// provided a and b are also fixed 
+// any observation ??
+// yes or no ?? 
+// connecting all edges give a graph 
+// edges must be ommited from it
+// remaining would be a tree 
 // 
 void solve()
 {
     //your code
+    ll n;
+    cin>>n;
+    vc<string>a(n) ;
+    REP1(i,n){
+        cin>>a[i] ;
+    }
+    vvc<ll>g(n) ;
+    vll deg(n) ;
+    REP1(i,n){
+        REP1(j,n){
+            if(i==j){
+                if(a[i][j]=='0'){
+                    cout<<"No"<<endl;
+                    return;
+                }
+                continue;
+            }
+            if(a[i][j]=='1'){
+                g[i].pb(j) ;
+                deg[j]++;
+            }
+        }
+    }
+    // cout<<g<<endl;
+    vll topo;
+    vll vis(n) ;
+    bool ok = true;
+    auto dfs=[&](auto dfs,ll u)->void{
+        vis[u] = 1;
+        for(auto v:g[u]){
+            if(!vis[v]){
+                dfs(dfs,v);
+            }
+            else if(vis[v]==1){
+                ok = false;
+                return ;
+            }
+        }
+        vis[u] = 2;
+    };
+    REP1(i,n){
+        if(!vis[i]) dfs(dfs,i) ;
+    }
+    if(!ok){
+        cout<<"No"<<endl;
+        return;
+    }
+    queue<ll>q;
+    REP1(i,n) if(!deg[i]) q.push(i) ;
+    while(q.size()){
+        ll u = q.front() ;
+        q.pop() ;
+        topo.pb(u) ;
+        for(auto v:g[u]){
+            deg[v]--;
+            if(!deg[v]) q.push(v) ;
+        }
+    }
+    vc<pll>edges;
+    bool poss = true;
+    for(int i=0;i<n;i++){
+        ll u = topo[i] ;
+        vll V;
+        for(int j=i+1;j<n;j++){
+            ll v = topo[j] ;
+            if(a[u][v]=='1'){
+                bool ok = true;
+                for(auto w:V){
+                   
+                        if(a[w][v]=='1'){
+                            ok = false;
+                        }
+                    
+                }
+                if(ok){
+                    V.pb(v) ;
+                    edges.pb({u,v});
+                    if(edges.size()>n-1){
+                        poss = false;
+                    }
+                }
+            }
+        }
+        if(!poss) break;
+        // for(auto v:V) edges.pb({u,v}) ;
+    }
+    if(!poss || (edges.size()!=(n-1))){
+        cout<<"No"<<endl;
+        return;
+    }
+
+    vll par(n) ;
+    vll sz(n,1) ;
+    REP1(i,n) par[i] = i;
+    auto getPar=[&](auto &&getPar,ll u)->ll{
+        return (par[u] = ((par[u]==u) ? u : getPar(getPar,par[u])));
+    };
+    auto unite=[&](ll x,ll y){
+        x = getPar(getPar,x) ;
+        y = getPar(getPar,y) ;
+        if(x==y) return false;
+        if(sz[x]<sz[y]) swap(x,y) ;
+        sz[x] += sz[y] ;
+        par[y] = x;
+        return true;
+        
+    };
+    REP1(i,edges.size()){
+        ll u = edges[i].fi ,v = edges[i].se;
+        u = getPar(getPar,u) , v = getPar(getPar,v) ;
+        if(!unite(u,v)){
+            poss = false;
+            break;
+        }
+    }
+    vvc<ll>G(n) ;
+    vvc<char>b(n,vc<char>(n,'0'));
+    REP1(i,edges.size()){
+        G[edges[i].fi].pb(edges[i].se) ;
+        // b[edges[i].fi][edges[i].se] = '1' ;
+        // queue<ll>q;
+        // q.push()
+    }
+    // cout<<G<<endl;
+    REP1(i,n){
+        queue<ll>q;
+        q.push(i) ;
+        vll vis(n);
+        vis[i] = 1;
+        while(q.size()){
+            ll u = q.front() ;
+            q.pop() ;
+            for(auto v:G[u]){
+                if(!vis[v]){
+                    q.push(v) ;
+                    vis[v] = 1;
+                }
+            }
+        }
+        REP1(j,n) if(vis[j]) b[i][j] = '1' ;
+    }
+    REP1(i,n){
+        REP1(j,n){
+            if(a[i][j] != b[i][j]){
+                poss = false;
+            }
+        }
+    }
+    if(poss){
+        cout<<"Yes"<<endl;
+        REP1(i,n-1){
+            cout<<edges[i].fi+1<<" "<<edges[i].se+1<<endl;
+        }
+    }
+    else cout<<"No"<<endl;
+    // REP1(i,edges.size()){
+    //     cout<<edges[i].fi+1<<" "<<edges[i].se+1<<endl;
+    // }
+
+    // vll deg(n) ;
+    // // cout<<a<<endl;
+    // vc<multiset<ll>>g(n) ;
+    // REP1(i,n){
+    //     REP1(j,n){
+    //         if(i==j) continue;
+    //         if(a[i][j]=='1'){
+    //             deg[i]++;
+    //             deg[j]++;
+    //             g[i].insert(j) ;
+    //             g[j].insert(i) ;
+    //         }
+    //     }
+    // }
+    // cout<<deg<<endl;
+    // vll marked(n) ;
+    // queue<ll>q;
+    // REP1(i,n){
+    //     if(deg[i]==1) q.push(i);
+    // }
+    // vc<pll> edges;
+    // while(q.size()){
+    //     ll u = q.front() ;
+    //     q.pop() ;
+    //     vll V;
+    //     cout<<"u"<<" "<<u+1<<endl;
+    //     cout<<g[u]<<endl;
+    //     for(auto v:g[u]){
+    //         if(a[u][v]=='1'){
+    //             deg[u]--;
+    //             deg[v]--;
+    //             if(deg[u]==1) q.push(u) ;
+    //             if(deg[v]==1) q.push(v) ;
+    //             edges.pb({u,v});
+    //         }
+    //         else if(a[v][u]=='1'){
+    //             deg[u]--;
+    //             deg[v]--;
+    //             if(deg[u]==1) q.push(u) ;
+    //             if(deg[v]==1) q.push(v) ;
+    //             edges.pb({v,u}) ;
+    //         }
+    //         V.pb(v) ;
+    //     }
+    //     for(auto v:V){
+    //         if(g[v].find(u)!=g[v].end()){
+    //             g[v].erase(g[v].find(u));
+    //         }
+    //     }
+
+    // }
+    // cout<<edges<<endl;
+    // vvc<char>b(n,vc<char>(n,'0'));
+    // REP1(i,n) b[i][i] = '1' ;
+    // REP1(i,edges.size()){
+    //     ll u = edges[i].fi , v = edges[i].se;
+    //     b[u][v] = '1' ;
+    // }
+    // REP1(i,n){
+    //     REP1(j,n){
+    //         cout<<b[i][j];
+    //     }cout<<endl;
+    // }
+    // bool ok = true;
+    // REP1(i,n) REP1(j,n) ok &= (b[i][j] == a[i][j]);
+    // if(ok){
+    //     cout<<"Yes"<<endl;
+    // }
+    // else{
+    //     cout<<"No"<<endl;
+    //     return;
+    // }
+    // REP1(i,n-1){
+    //     cout<<edges[i].fi+1<<" "<<edges[i].se+1<<endl;
+    // }
     
     
 

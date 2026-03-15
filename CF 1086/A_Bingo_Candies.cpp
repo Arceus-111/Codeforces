@@ -291,38 +291,31 @@ const ll inf=1e18;
 // 2) Proofs are simple.
 
 // 3) Implementations are simple.
-// on the number line , c must be close to b on either side 
-// given the sorted line segment 
-// at the ith step 
-// suppose wlog , we have a < b 
-// then c must be close to b
-// for any 'a' choosen by alice 
-// bob can choose a 'b' 
-// the random 'c' 
-// at the ith process 
-// total processes : i * (i-1) * (i-2) 
-// let us fix a
-// then fix b 
-// wlog a < b 
-// ...a...b.... (k elements more than b)
-// only c which are c > b (works) 
-// probability = (1/k )
-// expected score += (1/k)*(c-b) 
-// (1/k) * [(c1-b)+(c2-b)+..+(ck-b)]
-// (1/k) * [sigma(ci)[k element] - k*b] 
-// for the previous step 
-// [a1 ... ai-1] 
-// dp[i-1] = (1/k1) [sigma(ci) - k1*b]
-// if a and b were swapped 
-// dp[i-1] = 1/k1' [k1'*b - sigma(ci)] {ci less than b}
-// if after insertion of the new element , it lies between a and b 
-// then dp[i] = dp[i-1] // everything remains in place 
-// provided a and b are also fixed 
-// 
 void solve()
 {
     //your code
-    
+    ll n;
+    cin>>n;
+    vvc<ll>a(n,vc<ll>(n));
+    cin>>a;
+    set<ll>st;
+    vll f(1e4+5);
+    REP1(i,n) REP1(j,n) f[a[i][j]]++;
+    ll cnt = 0 ;
+    vll v;
+    REP1(i,1e4+5) if(f[i]) v.pb(f[i]) ;
+    sort(all(v)) ;
+    REP1(i,v.size()-1) cnt += v[i] ;
+    REP1(i,n){
+        REP1(j,n) st.insert(a[i][j]);
+    }
+    if(st.size()>=2){
+        bool ok = (cnt >= n);
+        if(ok) cout<<"YES"<<endl;
+        else cout<<"NO"<<endl;
+        
+    }
+    else cout<<"NO"<<endl;
     
 
 }

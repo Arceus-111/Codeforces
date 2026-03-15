@@ -291,37 +291,52 @@ const ll inf=1e18;
 // 2) Proofs are simple.
 
 // 3) Implementations are simple.
-// on the number line , c must be close to b on either side 
-// given the sorted line segment 
-// at the ith step 
-// suppose wlog , we have a < b 
-// then c must be close to b
-// for any 'a' choosen by alice 
-// bob can choose a 'b' 
-// the random 'c' 
-// at the ith process 
-// total processes : i * (i-1) * (i-2) 
-// let us fix a
-// then fix b 
-// wlog a < b 
-// ...a...b.... (k elements more than b)
-// only c which are c > b (works) 
-// probability = (1/k )
-// expected score += (1/k)*(c-b) 
-// (1/k) * [(c1-b)+(c2-b)+..+(ck-b)]
-// (1/k) * [sigma(ci)[k element] - k*b] 
-// for the previous step 
-// [a1 ... ai-1] 
-// dp[i-1] = (1/k1) [sigma(ci) - k1*b]
-// if a and b were swapped 
-// dp[i-1] = 1/k1' [k1'*b - sigma(ci)] {ci less than b}
-// if after insertion of the new element , it lies between a and b 
-// then dp[i] = dp[i-1] // everything remains in place 
-// provided a and b are also fixed 
-// 
 void solve()
 {
     //your code
+    ll n;
+    cin>>n;
+    vll c(n),p(n);
+    REP1(i,n) cin>>c[i]>>p[i] ;
+    // lets try dp 
+    // map<ll,map<ld,ld>>mp;
+    // map<ll,map<ld,ld>>vis;
+    // auto f=[&](auto &&f,ll idx, ld S)->ld{
+    //     if(idx==n){
+    //         return 0.0;
+    //     }
+    //     if(vis[idx][S]) return mp[idx][S] ;
+    //     ld ans = f(f,idx+1,S) ;
+    //     ld S_ = S * (1.0 - p[idx]/100.0) ;
+    //     ld cost = c[idx] * S ;
+    //     chmax(ans,f(f,idx+1,S_) + cost) ;
+    //     vis[idx][S] = 1;
+    //     mp[idx][S] = ans;
+    //     return ans;
+    // };
+    // ld ans = f(f,0,1.0) ;
+    vc<ld>dp(n+1,-1.0) ;
+    // auto f=[&](auto &&f,ll idx)->ld{
+    //     if(idx==n) return 0.0 ;
+    //     if(dp[idx]>=0.0) return dp[idx] ;
+    //     ld ans = f(f,idx+1) ; // skip it 
+    //     ld cost = (ld)c[idx] ;
+    //     ld take = (1.0 - p[idx]/100.0)*f(f,idx+1) ;
+
+    //     ld res = cost + take ;
+    //     return dp[idx] = max(res,ans) ;
+    // };
+    // ld ans = f(f,0) ;
+    dp[n-1] = c[n-1] ;
+    ld mx = c[n-1] ;    
+    for(int i=n-2;i>=0;i--){
+        dp[i] = c[i] + (1.0 - p[i]/100.0) * mx;
+        chmax(mx,dp[i]) ;
+    }
+    cout<<fixed<<setprecision(10);
+    ld ans = 0.0 ;
+    REP1(i,n) chmax(ans,dp[i]) ;
+    cout<<ans<<endl;
     
     
 
